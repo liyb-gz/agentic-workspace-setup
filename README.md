@@ -2,6 +2,8 @@
 
 A skill for setting up AI-agent workspaces with a three-layer architecture.
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 ## What It Does
 
 Guides you through creating structured workspaces where AI agents can:
@@ -73,3 +75,12 @@ my-workspace/
 ## Learn More
 
 See [SKILL.md](SKILL.md) for the complete skill instructions and [templates.md](templates.md) for ready-to-use templates.
+
+## Inspiration
+
+This skill was inspired by this video on Youtube:**[
+5 Steps to to Revolutionize Your Workflow with OpenCode](https://www.youtube.com/watch?v=0pL5kHbXk2M)** and the corresponding [repo](https://github.com/darrenhinde/personal-agent-systems).
+
+## License
+
+MIT License - see [LICENSE](LICENSE) for details.
