@@ -6,34 +6,41 @@ Complete, copy-ready templates for setting up agentic workspaces.
 
 ## Folder Structure Templates
 
-### Minimal Setup (Single Domain)
+### Cursor: Minimal Setup (Rules-First)
+
+> **Note:** Cursor's main agent cannot be customized. Use rules with `alwaysApply: true` for behavioral config.
 
 ```
 project/
 ├── .cursor/
+│   ├── rules/
+│   │   └── behavior.mdc          # alwaysApply: true - acts as agent config
 │   ├── commands/
 │   │   └── main-task.md
 │   └── agents/
-│       └── main-agent.md
+│       └── specialist.md         # Subagent (delegated specialist)
 ├── context/
 │   └── core/
 │       └── standards.md
 └── output/
 ```
 
-### Full Setup (Multi-Domain with Subagents)
+### Cursor: Full Setup (Multi-Domain with Subagents)
 
 ```
 project/
 ├── .cursor/
+│   ├── rules/
+│   │   ├── behavior.mdc          # alwaysApply: true - core behavior
+│   │   └── domain/
+│   │       └── patterns.mdc      # Intelligent apply based on context
 │   ├── commands/
 │   │   ├── domain-a/
 │   │   │   ├── task-1.md
 │   │   │   └── task-2.md
 │   │   └── domain-b/
 │   │       └── task-1.md
-│   ├── agents/
-│   │   ├── orchestrator.md
+│   ├── agents/                   # Subagents only (delegated specialists)
 │   │   └── specialists/
 │   │       ├── specialist-a.md
 │   │       └── specialist-b.md
@@ -48,10 +55,34 @@ project/
 │   │   └── voice.md
 │   └── domain-b/
 │       └── patterns.md
-├── opencode.json  # or mcp.json for Cursor
+├── mcp.json                      # MCP config for Cursor
 └── output/
     ├── domain-a/
     └── domain-b/
+```
+
+### OpenCode / Claude Code: Full Setup (Primary Agent + Subagents)
+
+```
+project/
+├── .opencode/                    # or .claude/
+│   ├── commands/
+│   │   ├── domain-a/
+│   │   │   └── task-1.md
+│   │   └── domain-b/
+│   │       └── task-1.md
+│   └── agents/
+│       ├── orchestrator.md       # Primary agent
+│       └── specialists/
+│           ├── specialist-a.md
+│           └── specialist-b.md
+├── context/
+│   ├── core/
+│   │   └── quality-standards.md
+│   └── domain/
+│       └── patterns.md
+├── opencode.json                 # or CLAUDE.md for Claude Code
+└── output/
 ```
 
 ---
@@ -185,7 +216,187 @@ Brief description of this domain and its key characteristics.
 
 ---
 
-## Agent Templates
+## Cursor: Rules as Pseudo-Agent Config
+
+Since Cursor's main agent cannot be customized, use rules with `alwaysApply: true` to inject persistent behavioral context.
+
+### Core Behavior Rule
+
+```markdown
+---
+description: "Core behavioral configuration for this workspace"
+alwaysApply: true
+---
+
+## Role & Voice
+
+You are a [Role] working on [Domain]. When responding:
+
+-   Use [tone/voice guidelines]
+-   Follow [communication patterns]
+-   Maintain [personality traits]
+
+## Core Constraints
+
+-   Always [required behavior]
+-   Never [prohibited behavior]
+-   Prefer [preferred approach] over [alternative]
+
+## Output Standards
+
+-   [Format requirements]
+-   [Quality expectations]
+-   [Structure patterns]
+
+## Context Awareness
+
+When working in this workspace:
+
+-   Reference files in `context/` for domain knowledge
+-   Follow patterns in [specific context files]
+-   Delegate to subagents for [specialized tasks]
+```
+
+### Domain-Specific Rule (Intelligent Apply)
+
+```markdown
+---
+description: "Patterns for [domain] work - applied when working on [file types/contexts]"
+globs: ["context/domain/**", "output/domain/**"]
+---
+
+## [Domain] Patterns
+
+### Pattern 1: [Name]
+
+**When to use:** [Trigger conditions]
+**How to apply:**
+
+1. Step 1
+2. Step 2
+
+### Pattern 2: [Name]
+
+**When to use:** [Trigger conditions]
+**How to apply:**
+
+1. Step 1
+2. Step 2
+
+## Quality Checklist
+
+-   [ ] [Criterion 1]
+-   [ ] [Criterion 2]
+```
+
+---
+
+## Cursor: Subagent Templates
+
+Subagents in Cursor are specialists that the main agent delegates tasks to. They run in their own context window.
+
+### Specialized Subagent for Cursor
+
+```markdown
+---
+name: specialist-name
+description: [Clear description - this is how the main agent decides when to delegate]
+---
+
+## Role
+
+You are a [Specialist Title] with expertise in [specific domain].
+
+## Focus Areas
+
+-   [Area 1]
+-   [Area 2]
+-   [Area 3]
+
+## Process
+
+1. **UNDERSTAND** the delegated request
+2. **ANALYZE** relevant context
+3. **EXECUTE** the specialized task
+4. **RETURN** structured results to the parent agent
+
+## Output Format
+
+Provide results in this structure:
+
+```
+## Summary
+[Brief overview]
+
+## Findings / Results
+[Detailed content]
+
+## Recommendations
+[Actionable next steps]
+```
+
+## Quality Standards
+
+-   [ ] [Specific criterion 1]
+-   [ ] [Specific criterion 2]
+```
+
+### Security Reviewer Subagent (Example)
+
+```markdown
+---
+name: security-reviewer
+description: Reviews code for security vulnerabilities including injection, XSS, hardcoded secrets, and auth flaws
+---
+
+## Role
+
+You are a security specialist who reviews code for vulnerabilities.
+
+## Focus Areas
+
+-   SQL/NoSQL injection
+-   Cross-site scripting (XSS)
+-   Hardcoded secrets and credentials
+-   Authentication/authorization flaws
+-   Input validation issues
+
+## Process
+
+1. Scan for common vulnerability patterns
+2. Check for hardcoded secrets/credentials
+3. Review auth/authz logic
+4. Validate input handling
+5. Compile findings with severity
+
+## Output Format
+
+```markdown
+## Security Review Summary
+
+**Risk Level:** [Critical/High/Medium/Low/None]
+**Files Reviewed:** [count]
+
+## Findings
+
+### [Finding Title]
+
+-   **Severity:** [Critical/High/Medium/Low]
+-   **Location:** `file:line`
+-   **Issue:** [Description]
+-   **Recommendation:** [Fix]
+
+## Summary
+
+[Overall assessment and priority recommendations]
+```
+```
+
+---
+
+## Agent Templates (OpenCode / Claude Code)
+
+For platforms that support primary agent customization.
 
 ### Primary/Orchestrator Agent
 
@@ -506,19 +717,22 @@ Execute this multi-step workflow:
 
 ---
 
-## Complete Example: Customer Support Workspace
+## Complete Example: Customer Support Workspace (Cursor)
+
+This example uses the Cursor rules-first architecture.
 
 ### Folder Structure
 
 ```
 support-workspace/
 ├── .cursor/
+│   ├── rules/
+│   │   └── support-behavior.mdc  # alwaysApply: true
 │   ├── commands/
 │   │   ├── triage.md
 │   │   └── respond.md
 │   └── agents/
-│       ├── support-orchestrator.md
-│       └── response-writer.md
+│       └── escalation-reviewer.md  # Subagent specialist
 ├── context/
 │   ├── core/
 │   │   └── quality-standards.md
@@ -530,10 +744,17 @@ support-workspace/
     └── responses/
 ```
 
-### Context: support/tone-guidelines.md
+### Rule: support-behavior.mdc
 
 ```markdown
-# Support Tone Guidelines
+---
+description: "Core support behavior - empathetic, solution-focused responses"
+alwaysApply: true
+---
+
+## Role
+
+You are a Support Team Lead who helps customers with empathy and efficiency.
 
 ## Voice
 
@@ -559,6 +780,85 @@ support-workspace/
 -   "That's not our policy"
 -   "You should have..."
 -   "Unfortunately..."
+
+## Delegation
+
+For complex escalation decisions, delegate to the escalation-reviewer subagent.
+```
+
+### Subagent: escalation-reviewer.md
+
+```markdown
+---
+name: escalation-reviewer
+description: Reviews support tickets to determine if escalation is needed based on urgency, complexity, or policy requirements
+---
+
+## Role
+
+You are an escalation specialist who reviews tickets for routing decisions.
+
+## Escalation Criteria
+
+-   **Immediate:** Safety issues, legal threats, VIP customers
+-   **High:** Billing disputes over $500, repeated issues (3+)
+-   **Normal:** Standard support requests
+
+## Output
+
+```markdown
+## Escalation Decision
+
+**Recommendation:** [Escalate/Handle Standard]
+**Priority:** [Immediate/High/Normal]
+**Reason:** [Brief justification]
+**Routing:** [Team/person if escalating]
+```
+```
+
+### Command: respond.md
+
+```markdown
+---
+name: respond
+---
+
+@context/core/quality-standards.md
+@context/support/tone-guidelines.md
+@context/support/common-issues.md
+
+**Customer Message:** $ARGUMENTS
+
+Draft a support response following our tone guidelines.
+
+For complex issues, delegate escalation decisions to the escalation-reviewer subagent.
+
+## Output
+
+Provide the response ready to send, with any internal notes marked separately.
+```
+
+---
+
+## Complete Example: Customer Support Workspace (OpenCode)
+
+This example uses OpenCode's primary agent model.
+
+### Folder Structure
+
+```
+support-workspace/
+├── .opencode/
+│   ├── commands/
+│   │   ├── triage.md
+│   │   └── respond.md
+│   └── agents/
+│       ├── support-orchestrator.md   # Primary agent
+│       └── response-writer.md
+├── context/
+│   └── support/
+│       └── tone-guidelines.md
+└── output/
 ```
 
 ### Agent: support-orchestrator.md
@@ -593,9 +893,7 @@ name: respond
 agent: support-orchestrator
 ---
 
-@context/core/quality-standards.md
 @context/support/tone-guidelines.md
-@context/support/common-issues.md
 
 **Customer Message:** $ARGUMENTS
 

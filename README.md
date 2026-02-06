@@ -26,11 +26,13 @@ User Input → Command → Context Injection → Agent Execution → Output
 
 ## Supported Platforms
 
-| Platform    | Config Location                            |
-| ----------- | ------------------------------------------ |
-| Cursor      | `.cursor/commands/`, `.cursor/agents/`     |
-| Claude Code | `.claude/commands/`, `CLAUDE.md`           |
-| OpenCode    | `.opencode/commands/`, `.opencode/agents/` |
+| Platform    | Config Location                            | Agent Model                |
+| ----------- | ------------------------------------------ | -------------------------- |
+| Cursor      | `.cursor/commands/`, `.cursor/rules/`      | Subagents only (see note)  |
+| Claude Code | `.claude/commands/`, `CLAUDE.md`           | Primary + subagents        |
+| OpenCode    | `.opencode/commands/`, `.opencode/agents/` | Primary + subagents        |
+
+> **Cursor Note:** Cursor's main agent cannot be customized. Use `.cursor/rules/` with `alwaysApply: true` for behavioral config, and `.cursor/agents/` for delegated subagent specialists only.
 
 ## Usage
 
@@ -56,19 +58,37 @@ The skill will guide you through:
 
 ## Example Output
 
+**Cursor (Rules-First):**
+
 ```
 my-workspace/
 ├── .cursor/
+│   ├── rules/
+│   │   └── behavior.mdc          # alwaysApply: true - acts as agent config
 │   ├── commands/
 │   │   └── create-post.md
 │   └── agents/
-│       └── content-writer.md
+│       └── content-reviewer.md   # Subagent specialist
 ├── context/
 │   ├── core/
 │   │   └── quality-standards.md
 │   └── content/
 │       ├── voice-guidelines.md
 │       └── templates.md
+└── output/
+```
+
+**OpenCode / Claude Code:**
+
+```
+my-workspace/
+├── .opencode/                    # or .claude/
+│   ├── commands/
+│   │   └── create-post.md
+│   └── agents/
+│       └── content-writer.md     # Primary agent
+├── context/
+│   └── ...
 └── output/
 ```
 

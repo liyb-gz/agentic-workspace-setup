@@ -59,11 +59,19 @@ Guide the user through understanding their workspace needs. Follow brainstorming
 
 **Platform differences:**
 
-| Platform    | Config Location | Command Format            | Agent Format            |
-| ----------- | --------------- | ------------------------- | ----------------------- |
-| Cursor      | `.cursor/`      | `.cursor/commands/*.md`   | `.cursor/agents/*.md`   |
-| Claude Code | `.claude/`      | `.claude/commands/*.md`   | CLAUDE.md               |
-| OpenCode    | `.opencode/`    | `.opencode/commands/*.md` | `.opencode/agents/*.md` |
+| Platform    | Config Location | Command Format            | Agent Format                      | Agent Model                |
+| ----------- | --------------- | ------------------------- | --------------------------------- | -------------------------- |
+| Cursor      | `.cursor/`      | `.cursor/commands/*.md`   | `.cursor/agents/*.md` (subagents) | Subagents only (see below) |
+| Claude Code | `.claude/`      | `.claude/commands/*.md`   | CLAUDE.md                         | Primary + subagents        |
+| OpenCode    | `.opencode/`    | `.opencode/commands/*.md` | `.opencode/agents/*.md`           | Primary + subagents        |
+
+**⚠️ Cursor Platform Limitation:**
+
+Cursor's main agent cannot be customized or replaced. Custom modes were removed from Cursor and replaced by slash commands. For Cursor workspaces:
+
+-   **Rules replace primary agent config** - Use `.cursor/rules/*.mdc` with `alwaysApply: true` for persistent behavioral context
+-   **Agents are subagents only** - Files in `.cursor/agents/` are specialists the main agent delegates to, not replacements
+-   **Commands orchestrate** - Commands load context via `@` references and can suggest delegation to subagents
 
 ### Question 2: Domain & Purpose
 
@@ -171,11 +179,21 @@ Ask: "Are these the right context files? Any missing?"
 
 ### Section 3: Agents
 
+**For Claude Code / OpenCode:**
+
 Present:
 
 -   Primary agent role and responsibilities
 -   Subagent breakdown (if applicable)
 -   How agents interact
+
+**For Cursor (subagent-only model):**
+
+Present:
+
+-   How rules will configure the main agent's behavior (pseudo-agent config)
+-   Subagent specialists to create (delegated tasks)
+-   When the main agent should delegate to each subagent
 
 Ask: "Does this agent structure make sense?"
 
@@ -207,12 +225,27 @@ Once design is validated, create the workspace.
 
 ### Implementation Checklist
 
+**For Claude Code / OpenCode:**
+
 ```
 Workspace Setup:
 - [ ] Create folder structure
 - [ ] Write context files
 - [ ] Create agents (primary + subagents)
 - [ ] Write commands
+- [ ] Configure MCP servers
+- [ ] Verify one workflow end-to-end
+```
+
+**For Cursor:**
+
+```
+Workspace Setup:
+- [ ] Create folder structure
+- [ ] Write context files
+- [ ] Create rules (behavior.mdc with alwaysApply: true)
+- [ ] Create subagents (specialists for delegation)
+- [ ] Write commands (with @ references and delegation hints)
 - [ ] Configure MCP servers
 - [ ] Verify one workflow end-to-end
 ```
@@ -228,21 +261,27 @@ Test one complete workflow before finishing:
 
 ### Platform-Specific Structures
 
-**Cursor:**
+**Cursor (Rules-First Architecture):**
 
 ```
 project/
 ├── .cursor/
+│   ├── rules/                    # Primary behavioral config
+│   │   ├── behavior.mdc          # alwaysApply: true - acts as agent config
+│   │   └── domain/
+│   │       └── patterns.mdc      # Intelligent apply based on context
 │   ├── commands/
-│   │   └── domain/
-│   ├── agents/
-│   │   └── domain/
-│   └── rules/           # Optional project rules
+│   │   └── workflows/
+│   ├── agents/                   # Subagents (delegated specialists)
+│   │   └── specialists/
+│   └── skills/                   # Optional: skill files for reference
 ├── context/
 │   ├── core/
 │   └── domain/
 └── output/
 ```
+
+> **Why rules-first?** Since Cursor's main agent cannot be customized, rules with `alwaysApply: true` serve as the primary way to inject persistent behavioral context (voice, constraints, patterns).
 
 **OpenCode:**
 
@@ -289,6 +328,89 @@ project/
 
 ---
 
+## Reference: Cursor-Specific Guidance
+
+Since Cursor's main agent is locked, use this adapted approach:
+
+### Rules as Pseudo-Agent Config
+
+Create `.cursor/rules/behavior.mdc` with `alwaysApply: true`:
+
+```markdown
+---
+description: "Core behavioral configuration for this workspace"
+alwaysApply: true
+---
+
+## Role & Voice
+
+You are a [Role] working on [Domain]. When responding:
+
+-   Use [tone/voice guidelines]
+-   Follow [communication patterns]
+
+## Core Constraints
+
+-   Always [required behavior]
+-   Never [prohibited behavior]
+
+## Output Standards
+
+-   [Format requirements]
+-   [Quality expectations]
+```
+
+### Subagent Structure for Cursor
+
+Subagents in `.cursor/agents/` are specialists the main agent delegates to:
+
+```markdown
+---
+name: security-reviewer
+description: Reviews code for security vulnerabilities including injection, XSS, and hardcoded secrets
+---
+
+## Role
+
+You are a security specialist who reviews code for vulnerabilities.
+
+## Focus Areas
+
+-   SQL/NoSQL injection
+-   Cross-site scripting (XSS)
+-   Hardcoded secrets and credentials
+-   Authentication/authorization flaws
+
+## Output
+
+Provide a structured report with:
+
+1. Severity (Critical/High/Medium/Low)
+2. Location (file:line)
+3. Description
+4. Recommended fix
+```
+
+### Commands That Orchestrate Delegation
+
+Commands can suggest when the main agent should delegate:
+
+```markdown
+---
+name: security-audit
+---
+
+@context/security/standards.md
+
+Perform a comprehensive security review of the codebase.
+
+**Important:** Delegate the detailed code review to the security-reviewer subagent.
+
+Report findings in a structured format with severity levels.
+```
+
+---
+
 ## Reference: Three-Layer Architecture
 
 | Layer        | Purpose                                          | Location                      |
@@ -298,6 +420,8 @@ project/
 | **Agents**   | Execute tasks with loaded context                | Platform-specific             |
 
 **Key principle:** Commands are context loaders, not just shortcuts.
+
+**Cursor adaptation:** The "Agents" layer becomes "Subagents + Rules" where rules handle main agent behavior and subagents handle delegated specialist tasks.
 
 ---
 
@@ -397,14 +521,16 @@ You are my [Role].
 
 ## Anti-Patterns
 
-| Avoid                          | Do Instead                                      |
-| ------------------------------ | ----------------------------------------------- |
-| Generic context ("write well") | Specific patterns ("use H2 for sections")       |
-| Overloading context (5+ files) | Limit to 2-4 focused files                      |
-| Vague agent prompts            | Clear role, process, output format              |
-| Commands without context       | Always inject relevant domain knowledge         |
-| Monolithic agents              | Split into orchestrator + specialized subagents |
-| Skipping discovery             | Always understand requirements first            |
+| Avoid                                       | Do Instead                                             |
+| ------------------------------------------- | ------------------------------------------------------ |
+| Generic context ("write well")              | Specific patterns ("use H2 for sections")              |
+| Overloading context (5+ files)              | Limit to 2-4 focused files                             |
+| Vague agent prompts                         | Clear role, process, output format                     |
+| Commands without context                    | Always inject relevant domain knowledge                |
+| Monolithic agents                           | Split into orchestrator + specialized subagents        |
+| Skipping discovery                          | Always understand requirements first                   |
+| **Cursor:** Expecting custom primary agents | Use `alwaysApply` rules for behavioral config          |
+| **Cursor:** Putting behavior in agents/     | Agents are subagents only; use rules for main behavior |
 
 ---
 
