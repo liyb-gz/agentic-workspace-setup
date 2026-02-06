@@ -164,10 +164,12 @@ Brief description of this domain and its key characteristics.
 ## Templates
 
 ### [Output Type] Template
+```
+
+[Structure/format to follow]
 
 ```
-[Structure/format to follow]
-```
+
 ```
 
 ### Voice/Tone Guidelines
@@ -300,7 +302,8 @@ Subagents in Cursor are specialists that the main agent delegates tasks to. They
 ```markdown
 ---
 name: specialist-name
-description: [Clear description - this is how the main agent decides when to delegate]
+description:
+    [Clear description - this is how the main agent decides when to delegate]
 ---
 
 ## Role
@@ -323,16 +326,20 @@ You are a [Specialist Title] with expertise in [specific domain].
 ## Output Format
 
 Provide results in this structure:
-
 ```
+
 ## Summary
+
 [Brief overview]
 
 ## Findings / Results
+
 [Detailed content]
 
 ## Recommendations
+
 [Actionable next steps]
+
 ```
 
 ## Quality Standards
@@ -343,7 +350,7 @@ Provide results in this structure:
 
 ### Security Reviewer Subagent (Example)
 
-```markdown
+````markdown
 ---
 name: security-reviewer
 description: Reviews code for security vulnerabilities including injection, XSS, hardcoded secrets, and auth flaws
@@ -390,7 +397,9 @@ You are a security specialist who reviews code for vulnerabilities.
 
 [Overall assessment and priority recommendations]
 ```
-```
+````
+
+````
 
 ---
 
@@ -444,7 +453,7 @@ Before delivering output, verify:
 -   Apply quality-standards.md for universal quality
 -   Use domain patterns for specific workflows
 -   Reference voice guidelines for consistency
-```
+````
 
 ### Specialized Subagent
 
@@ -788,7 +797,7 @@ For complex escalation decisions, delegate to the escalation-reviewer subagent.
 
 ### Subagent: escalation-reviewer.md
 
-```markdown
+````markdown
 ---
 name: escalation-reviewer
 description: Reviews support tickets to determine if escalation is needed based on urgency, complexity, or policy requirements
@@ -814,7 +823,9 @@ You are an escalation specialist who reviews tickets for routing decisions.
 **Reason:** [Brief justification]
 **Routing:** [Team/person if escalating]
 ```
-```
+````
+
+````
 
 ### Command: respond.md
 
@@ -836,7 +847,7 @@ For complex issues, delegate escalation decisions to the escalation-reviewer sub
 ## Output
 
 Provide the response ready to send, with any internal notes marked separately.
-```
+````
 
 ---
 

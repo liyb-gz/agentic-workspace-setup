@@ -26,11 +26,11 @@ User Input → Command → Context Injection → Agent Execution → Output
 
 ## Supported Platforms
 
-| Platform    | Config Location                            | Agent Model                |
-| ----------- | ------------------------------------------ | -------------------------- |
-| Cursor      | `.cursor/commands/`, `.cursor/rules/`      | Subagents only (see note)  |
-| Claude Code | `.claude/commands/`, `CLAUDE.md`           | Primary + subagents        |
-| OpenCode    | `.opencode/commands/`, `.opencode/agents/` | Primary + subagents        |
+| Platform    | Config Location                            | Agent Model               |
+| ----------- | ------------------------------------------ | ------------------------- |
+| Cursor      | `.cursor/commands/`, `.cursor/rules/`      | Subagents only (see note) |
+| Claude Code | `.claude/commands/`, `CLAUDE.md`           | Primary + subagents       |
+| OpenCode    | `.opencode/commands/`, `.opencode/agents/` | Primary + subagents       |
 
 > **Cursor Note:** Cursor's main agent cannot be customized. Use `.cursor/rules/` with `alwaysApply: true` for behavioral config, and `.cursor/agents/` for delegated subagent specialists only.
 
